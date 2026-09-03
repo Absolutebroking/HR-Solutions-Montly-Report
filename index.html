@@ -1,0 +1,724 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Punctuality &amp; Attendance — August 2026</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --ink-soft:#5b6673;
+    --paper:#eef1f0;
+    --card:#ffffff;
+    --line:#dde2e0;
+    --brass:#8a6d3b;
+    --pine:#2f5d50;
+    --pine-deep:#1e3d35;
+    --rust:#a4432a;
+    --amber:#c98a2c;
+    --slate:#556070;
+    --radius:3px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  @font-face{ /* fallback stack is fine; no external fetch */ }
+
+  .masthead{
+    background:var(--pine-deep);
+    color:#eef1ea;
+    padding:34px clamp(18px,4vw,56px) 26px;
+    border-bottom:6px solid var(--brass);
+  }
+  .masthead-top{
+    display:flex; justify-content:space-between; align-items:flex-end; flex-wrap:wrap; gap:14px;
+  }
+  .period-picker{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    margin-bottom:16px;
+    font-size:11.5px;
+  }
+  .period-picker label{
+    color:#c9d6c9;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-size:10.5px;
+  }
+  .period-picker select{
+    padding:6px 10px;
+    border:1px solid rgba(255,255,255,0.35);
+    background:rgba(255,255,255,0.08);
+    color:#eef1ea;
+    font-size:12.5px;
+    border-radius:2px;
+  }
+  .period-picker select option{ color:#1b2430; }
+  .masthead h1{
+    font-family: Georgia, "Times New Roman", serif;
+    font-weight:700;
+    font-size:clamp(28px,3.4vw,42px);
+    margin:0 0 4px;
+    letter-spacing:0.2px;
+  }
+  .masthead .kicker{
+    font-size:12.5px;
+    letter-spacing:0.14em;
+    color:#c9d6c9;
+    margin:0;
+  }
+  .masthead .meta{
+    text-align:right;
+    font-size:12.5px;
+    color:#c9d6c9;
+    line-height:1.6;
+  }
+  .masthead .meta strong{ color:#fff; }
+  nav.tabs{
+    margin-top:22px;
+    display:flex;
+    gap:2px;
+    border-top:1px solid rgba(255,255,255,0.15);
+    padding-top:14px;
+  }
+  nav.tabs a{
+    color:#dfe7de;
+    text-decoration:none;
+    font-size:14px;
+    padding:7px 16px;
+    border:1px solid rgba(255,255,255,0.25);
+    border-bottom:none;
+    border-radius:3px 3px 0 0;
+  }
+  nav.tabs a.current{
+    background:var(--paper);
+    color:var(--ink);
+    border-color:var(--paper);
+    font-weight:600;
+  }
+
+  main{
+    max-width:1180px;
+    margin:0 auto;
+    padding:32px clamp(18px,4vw,56px) 70px;
+  }
+
+  section{ margin-bottom:42px; }
+  h2.section-title{
+    font-family:Georgia, serif;
+    font-size:20px;
+    margin:0 0 4px;
+    color:var(--pine-deep);
+  }
+  p.section-sub{
+    margin:0 0 18px;
+    color:var(--ink-soft);
+    font-size:13.5px;
+    max-width:70ch;
+  }
+
+  /* KPI strip */
+  .kpi-row{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1px;
+    background:var(--line);
+    border:1px solid var(--line);
+  }
+  .kpi{
+    background:var(--card);
+    padding:20px 18px;
+  }
+  .kpi .num{
+    font-family:Georgia, serif;
+    font-size:34px;
+    font-weight:700;
+    line-height:1;
+    color:var(--ink);
+  }
+  .kpi .num.rust{color:var(--rust);}
+  .kpi .num.amber{color:var(--amber);}
+  .kpi .num.pine{color:var(--pine);}
+  .kpi .num.slate{color:var(--slate);}
+  .kpi .lbl{
+    margin-top:8px;
+    font-size:12px;
+    color:var(--ink-soft);
+    text-transform:uppercase;
+    letter-spacing:0.06em;
+  }
+  .kpi .sub{
+    margin-top:3px;
+    font-size:11.5px;
+    color:#93a08e;
+  }
+  @media (max-width:900px){ .kpi-row{grid-template-columns:repeat(2,1fr);} }
+  @media (min-width:901px) and (max-width:1180px){ .kpi-row{grid-template-columns:repeat(3,1fr);} }
+  @media (min-width:1181px){ .kpi-row{grid-template-columns:repeat(4,1fr);} }
+
+  /* two column layout for charts */
+  .grid-2{
+    display:grid;
+    grid-template-columns: 1.3fr 1fr;
+    gap:22px;
+  }
+  @media (max-width:880px){ .grid-2{grid-template-columns:1fr;} }
+  .grid-3{ grid-template-columns: 1fr 1fr 1fr; }
+  @media (max-width:1080px){ .grid-3{grid-template-columns:1fr;} }
+
+  .panel{
+    background:var(--card);
+    border:1px solid var(--line);
+    padding:20px 22px 24px;
+  }
+  .panel h3{
+    margin:0 0 14px;
+    font-size:14.5px;
+    font-weight:700;
+    color:var(--ink);
+  }
+
+  /* bar chart (per employee lateness) built with divs */
+  .bar-row{
+    display:grid;
+    grid-template-columns: 128px 1fr 34px;
+    align-items:center;
+    gap:10px;
+    font-size:12.5px;
+    padding:5px 0;
+  }
+  .bar-row .name{
+    color:var(--ink);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+  .bar-track{
+    background:#eef0ee;
+    height:12px;
+    position:relative;
+    border-radius:2px;
+    overflow:hidden;
+  }
+  .bar-fill{
+    position:absolute;
+    left:0; top:0; bottom:0;
+    background:var(--rust);
+    border-radius:2px 0 0 2px;
+  }
+  .bar-row .count{ text-align:right; color:var(--ink-soft); }
+
+  /* holiday / shift note card */
+  .note-list{ font-size:13px; color:var(--ink-soft); margin:0; padding-left:0; list-style:none;}
+  .note-list li{ padding:6px 0; border-bottom:1px dashed var(--line); display:flex; justify-content:space-between; gap:10px;}
+  .note-list li:last-child{ border-bottom:none; }
+  .note-list .tag{
+    font-size:11px;
+    color:var(--pine);
+    font-weight:600;
+    white-space:nowrap;
+  }
+
+  /* main table */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    background:var(--card);
+  }
+  thead th{
+    text-align:left;
+    font-size:11px;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--ink-soft);
+    padding:10px 12px;
+    border-bottom:2px solid var(--ink);
+    cursor:pointer;
+    white-space:nowrap;
+  }
+  thead th:hover{ color:var(--pine-deep); }
+  tbody td{
+    padding:10px 12px;
+    border-bottom:1px solid var(--line);
+    vertical-align:middle;
+  }
+  tbody tr:hover{ background:#f5f7f4; }
+  td.num, th.num{ text-align:right; }
+  .emp-name{ font-weight:600; }
+  .emp-id{ color:var(--ink-soft); font-size:11.5px; }
+  .pill{
+    display:inline-block;
+    padding:2px 9px;
+    border-radius:20px;
+    font-size:11px;
+    font-weight:600;
+  }
+  .pill.good{ background:#e2ede4; color:#2f5d40; }
+  .pill.warn{ background:#f5e6d0; color:#8a5a12; }
+  .pill.bad{ background:#f4dfd8; color:#8f3a20; }
+  .meter{
+    width:70px; height:6px; background:#e7e9e6; border-radius:4px; overflow:hidden; display:inline-block; vertical-align:middle; margin-right:6px;
+  }
+  .meter > span{ display:block; height:100%; background:var(--pine); }
+  a.detail-link{
+    color:var(--pine-deep);
+    font-size:12px;
+    font-weight:600;
+    text-decoration:none;
+    border-bottom:1px solid var(--pine-deep);
+  }
+  a.detail-link:hover{ color:var(--rust); border-color:var(--rust); }
+
+  .toolbar{
+    display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .toolbar input[type=text]{
+    padding:8px 12px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;
+    min-width:220px;
+    border-radius:2px;
+  }
+  .toolbar select{
+    padding:8px 10px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;
+    border-radius:2px;
+  }
+  .toolbar .count-note{ font-size:12px; color:var(--ink-soft); margin-left:auto; }
+
+  footer{
+    text-align:center;
+    padding:24px;
+    font-size:11.5px;
+    color:#93a08e;
+    border-top:1px solid var(--line);
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="period-picker" id="period-picker">
+    <label for="year-select">Year</label>
+    <select id="year-select"></select>
+    <label for="month-select">Month</label>
+    <select id="month-select"></select>
+  </div>
+  <div class="masthead-top">
+    <div>
+      <p class="kicker">TIME &amp; PUNCTUALITY REGISTER</p>
+      <h1>Attendance Dashboard</h1>
+    </div>
+    <div class="meta">
+      Reporting period<br>
+      <strong id="period-label">—</strong><br>
+      <span id="generated-label" style="opacity:0.75; font-size:11px;"></span>
+    </div>
+  </div>
+  <nav class="tabs">
+    <a href="index.html" class="current">Overview</a>
+    <a href="employee-details.html" id="details-tab-link">Employee Details &amp; Search</a>
+  </nav>
+</header>
+
+<main>
+
+  <section id="no-data-section" style="display:none;">
+    <div class="panel" style="border-color:#e8c9a6; background:#fdf6ec; text-align:center; padding:40px 22px;">
+      <h3 style="color:#8a5a12; margin-bottom:8px;">No data yet for <span id="no-data-month">this month</span></h3>
+      <p class="section-sub" style="margin:0 auto; text-align:center;">
+        Fill in the CSVs inside <code id="no-data-folder">—</code>, then double-click
+        <code>refresh_dashboard.bat</code> (Windows) or <code>refresh_dashboard.command</code> (Mac) to generate this month's dashboard.
+      </p>
+    </div>
+  </section>
+
+  <div id="dashboard-content">
+
+  <section>
+    <div class="kpi-row" id="kpi-row"></div>
+  </section>
+
+  <section id="warnings-section" style="display:none; margin-top:-24px;">
+    <div class="panel" style="border-color:#e8c9a6; background:#fdf6ec;">
+      <h3 style="color:#8a5a12; margin-bottom:10px;">⚠ Some rows in your CSVs couldn't be read</h3>
+      <p class="section-sub" style="margin-bottom:10px;">These rows were skipped so the rest of the dashboard could still load correctly. Fix them in the CSV and re-run <code>python3 process.py</code>.</p>
+      <ul class="note-list" id="warnings-list"></ul>
+    </div>
+  </section>
+
+  <section class="grid-2 grid-3">
+    <div class="panel">
+      <h3>Late arrivals by employee</h3>
+      <div id="late-chart"></div>
+    </div>
+    <div class="panel">
+      <h3>Shift roster &amp; calendar notes</h3>
+      <ul class="note-list" id="shift-list"></ul>
+      <h3 style="margin-top:20px;">Holidays observed</h3>
+      <ul class="note-list" id="holiday-list"></ul>
+    </div>
+    <div class="panel">
+      <h3>Team changes this period</h3>
+      <p style="font-size:12px; color:var(--ink-soft); margin:0 0 10px;">Joiners and resignations from joined_employees.csv / resigned_employees.csv — their absent/present counts only apply within their employment window.</p>
+      <ul class="note-list" id="team-changes-list"></ul>
+    </div>
+  </section>
+
+  <section>
+    <h2 class="section-title" id="summary-title">Employee summary</h2>
+    <p class="section-sub">Present / absent / late days over the reporting period, punctuality rate, and open (missing) logouts. Click any column heading to sort, or open an employee's full daily log for details.</p>
+
+    <div class="toolbar">
+      <input type="text" id="search-box" placeholder="Search employee name or ID…">
+      <select id="shift-filter">
+        <option value="">All shifts</option>
+        <option value="8:00 AM">8:00 AM shift</option>
+        <option value="8:30 AM">8:30 AM shift</option>
+        <option value="9:30 AM">9:30 AM shift</option>
+      </select>
+      <span class="count-note" id="row-count"></span>
+    </div>
+
+    <table id="summary-table">
+      <thead>
+        <tr>
+          <th data-key="name">Employee</th>
+          <th data-key="shift">Shift</th>
+          <th data-key="present" class="num">Present</th>
+          <th data-key="absent" class="num">Absent</th>
+          <th data-key="late" class="num">Late</th>
+          <th data-key="late_after_10am" class="num">Late after 10</th>
+          <th data-key="no_logout" class="num">No Logout</th>
+          <th data-key="manual_entries" class="num">Manual</th>
+          <th data-key="attendance_pct" class="num">Attendance</th>
+          <th data-key="punctuality_pct" class="num">Punctuality</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="summary-body"></tbody>
+    </table>
+  </section>
+
+  </div>
+
+</main>
+
+<footer>
+  Generated from biometric/GPS punch export &nbsp;·&nbsp; See <a href="employee-details.html" style="color:var(--pine);">Employee Details</a> for the full daily log
+</footer>
+
+<script src="periods.js"></script>
+<script src="period-loader.js"></script>
+<script>
+let DATA = null;
+let employees = [];
+let sortKey = "late", sortDir = -1;
+
+function fmtDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+}
+
+function pctBar(pct, color){
+  return `<span class="meter"><span style="width:${pct}%; background:${color}"></span></span>${pct}%`;
+}
+
+function renderTable(){
+  const q = document.getElementById("search-box").value.trim().toLowerCase();
+  const shiftFilter = document.getElementById("shift-filter").value;
+
+  let rows = employees.filter(e=>{
+    const matchesQ = !q || e.name.toLowerCase().includes(q) || e.id.toLowerCase().includes(q);
+    const matchesShift = !shiftFilter || e.shift === shiftFilter;
+    return matchesQ && matchesShift;
+  });
+
+  rows.sort((a,b)=>{
+    const av = a[sortKey], bv = b[sortKey];
+    if (typeof av === "string") return sortDir * av.localeCompare(bv);
+    return sortDir * (av - bv);
+  });
+
+  document.getElementById("row-count").textContent = `${rows.length} of ${employees.length} employees`;
+
+  document.getElementById("summary-body").innerHTML = rows.map(e=>{
+    const attendanceColor = e.attendance_pct >= 90 ? "#2f5d50" : e.attendance_pct >= 75 ? "#c98a2c" : "#a4432a";
+    const punctColor = e.punctuality_pct >= 90 ? "#2f5d50" : e.punctuality_pct >= 70 ? "#c98a2c" : "#a4432a";
+    const latePill = e.late === 0 ? `<span class="pill good">0</span>` : e.late <= 3 ? `<span class="pill warn">${e.late}</span>` : `<span class="pill bad">${e.late}</span>`;
+    const lateAfter10Cell = e.shift_code !== "C"
+      ? `<span style="color:var(--ink-soft);" title="Only applies to the 9:30 AM shift">—</span>`
+      : e.late_after_10am ? `<span class="pill bad" title="Arrived at/after 10:00 AM">${e.late_after_10am}</span>` : `<span class="pill good">0</span>`;
+    const noLogoutCell = e.no_logout === 0 ? "0" : `<span class="pill bad">${e.no_logout}</span>`;
+    const manualCell = e.manual_entries ? `<span class="pill good" title="Days corrected via manual_corrections.csv">${e.manual_entries}</span>` : `<span style="color:var(--ink-soft);">0</span>`;
+    const statusBadge = e.employment_status === "Resigned"
+      ? `<span class="pill bad" title="Last working day: ${e.last_working_day}">Resigned</span>`
+      : e.employment_status === "Joined mid-period"
+      ? `<span class="pill warn" title="Joined: ${e.joining_date}">New</span>`
+      : "";
+    return `
+      <tr>
+        <td><div class="emp-name">${e.name} ${statusBadge}</div><div class="emp-id">${e.id}</div></td>
+        <td>${e.shift}</td>
+        <td class="num">${e.present}/${e.working_days}</td>
+        <td class="num">${e.absent}</td>
+        <td class="num">${latePill}</td>
+        <td class="num">${lateAfter10Cell}</td>
+        <td class="num">${noLogoutCell}</td>
+        <td class="num">${manualCell}</td>
+        <td class="num">${pctBar(e.attendance_pct, attendanceColor)}</td>
+        <td class="num">${pctBar(e.punctuality_pct, punctColor)}</td>
+        <td class="num"><a class="detail-link" href="employee-details.html?${currentPeriodQuery()}&emp=${encodeURIComponent(e.id)}">View log →</a></td>
+      </tr>
+    `;
+  }).join("");
+}
+
+document.querySelectorAll("#summary-table thead th[data-key]").forEach(th=>{
+  th.addEventListener("click", ()=>{
+    const key = th.dataset.key;
+    if (sortKey === key) sortDir *= -1; else { sortKey = key; sortDir = key === "name" || key==="shift" ? 1 : -1; }
+    renderTable();
+  });
+});
+document.getElementById("search-box").addEventListener("input", renderTable);
+document.getElementById("shift-filter").addEventListener("change", renderTable);
+
+// ---- Renders everything on the page from the currently-loaded DATA ----
+function renderDashboard(){
+  DATA = window.ATTENDANCE_DATA;
+  employees = Object.values(DATA.employees);
+
+  document.getElementById("period-label").textContent =
+    fmtDate(DATA.date_range.start) + " – " + fmtDate(DATA.date_range.end);
+
+  if (DATA.generated_at){
+    const gen = new Date(DATA.generated_at);
+    document.getElementById("generated-label").textContent =
+      "Dashboard data generated " + gen.toLocaleDateString("en-GB", {day:"2-digit", month:"short"}) + " at " +
+      gen.toLocaleTimeString("en-GB", {hour:"2-digit", minute:"2-digit"});
+  }
+
+  document.getElementById("warnings-section").style.display = "none";
+  document.getElementById("warnings-list").innerHTML = "";
+  if (DATA.warnings && DATA.warnings.length){
+    document.getElementById("warnings-section").style.display = "block";
+    document.getElementById("warnings-list").innerHTML = DATA.warnings.map(w=>
+      `<li style="border-bottom:1px dashed #e8c9a6;"><span style="color:#8a5a12; font-size:12.5px;">${w}</span></li>`
+    ).join("");
+  }
+
+  // ---- KPI strip -------------------------------------------------
+  const totalWorkingDays = DATA.working_days.length;
+  const totalPresent = employees.reduce((s,e)=>s+e.present,0);
+  const totalAbsent = employees.reduce((s,e)=>s+e.absent,0);
+  const totalLate = employees.reduce((s,e)=>s+e.late,0);
+  const totalNoLogout = employees.reduce((s,e)=>s+e.no_logout,0);
+  const overallAttendance = Math.round(1000*totalPresent/(totalPresent+totalAbsent))/10;
+
+  const totalManual = employees.reduce((s,e)=>s+(e.manual_entries||0),0);
+  const totalLateAfter10 = DATA.total_late_after_10am != null
+    ? DATA.total_late_after_10am
+    : employees.reduce((s,e)=>s+(e.late_after_10am||0),0);
+  const kpis = [
+    {num: employees.length, lbl:"Employees tracked", sub: totalWorkingDays + " working days", cls:""},
+    {num: totalAbsent, lbl:"Absent / leave days", sub:"across all employees", cls:"rust"},
+    {num: totalLate, lbl:"Late arrivals", sub:"instances this period", cls:"amber"},
+    {num: totalLateAfter10, lbl:"Late after 10 AM", sub:"9:30 AM shift only", cls:"rust"},
+    {num: totalNoLogout, lbl:"Missing logouts", sub:"no exit punch recorded", cls:"slate"},
+    {num: overallAttendance + "%", lbl:"Overall attendance", sub:"present ÷ (present+absent)", cls:"pine"},
+    {num: totalManual, lbl:"Manual (WhatsApp) entries", sub:"corrected via manual_corrections.csv", cls:"slate"},
+  ];
+  document.getElementById("kpi-row").innerHTML = kpis.map(k=>`
+    <div class="kpi">
+      <div class="num ${k.cls}">${k.num}</div>
+      <div class="lbl">${k.lbl}</div>
+      <div class="sub">${k.sub}</div>
+    </div>
+  `).join("");
+
+  // ---- Late-arrivals bar chart ------------------------------------
+  const byLate = [...employees].sort((a,b)=>b.late-a.late).filter(e=>e.late>0);
+  const maxLate = Math.max(1, ...byLate.map(e=>e.late));
+  document.getElementById("late-chart").innerHTML = byLate.length ? byLate.map(e=>`
+    <div class="bar-row">
+      <div class="name" title="${e.name}">${e.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(e.late/maxLate*100).toFixed(0)}%"></div></div>
+      <div class="count">${e.late}</div>
+    </div>
+  `).join("") : `<p style="color:var(--ink-soft); font-size:13px;">No late arrivals recorded.</p>`;
+
+  // ---- Shift + holiday notes ---------------------------------------
+  document.getElementById("shift-list").innerHTML = `
+    <li><span>Shift A — 8:00 AM</span><span class="tag">Naveenkumar</span></li>
+    <li><span>Shift B — 8:30 AM</span><span class="tag">Santhosh, Haroon, Fouziya</span></li>
+    <li><span>Shift C — 9:30 AM</span><span class="tag">All other employees</span></li>
+    <li><span>Saturdays</span><span class="tag">Everyone reports at 9:30 AM</span></li>
+    <li><span>2nd &amp; 4th Saturday</span><span class="tag">Company holiday for everyone</span></li>
+    <li><span>Grace window</span><span class="tag">On time through :59s of shift minute</span></li>
+    <li><span>Missed a punch?</span><span class="tag">Add it to manual_corrections.csv</span></li>
+  `;
+  document.getElementById("holiday-list").innerHTML = DATA.holidays.length
+    ? DATA.holidays.map(d=>{
+        const reason = (DATA.holiday_reasons && DATA.holiday_reasons[d]) || "Holiday";
+        return `<li><span>${fmtDate(d)}</span><span class="tag">${reason}</span></li>`;
+      }).join("")
+    : `<li><span>No holidays in this period</span></li>`;
+
+  // Note any stray punches recorded on a policy/declared holiday
+  if (DATA.holiday_worked && DATA.holiday_worked.length){
+    const extra = DATA.holiday_worked.map(h=>`${h.name} on ${fmtDate(h.date)}`).join(", ");
+    document.getElementById("holiday-list").innerHTML += `
+      <li style="border-bottom:none; margin-top:4px; padding-top:10px; border-top:1px solid var(--line);">
+        <span style="font-size:11.5px;">Punched in on a holiday: ${extra}</span>
+        <span class="tag" style="color:var(--rust);">Not counted</span>
+      </li>`;
+  }
+
+  // ---- Team changes (joined / resigned) ------------------------------
+  const joinedList = DATA.joined_employees || [];
+  const resignedList = DATA.resigned_employees || [];
+  const teamChanges = [
+    ...joinedList.map(j=>({ ...j, kind:"joined" })),
+    ...resignedList.map(r=>({ ...r, kind:"resigned" })),
+  ].sort((a,b)=> (a.joining_date||a.last_working_day).localeCompare(b.joining_date||b.last_working_day));
+
+  document.getElementById("team-changes-list").innerHTML = teamChanges.length
+    ? teamChanges.map(t=>{
+        if (t.kind === "joined"){
+          return `<li><span>${t.name} <span style="color:var(--ink-soft); font-size:11px;">joined ${fmtDate(t.joining_date)}</span></span><span class="tag" style="color:var(--pine);">New joiner</span></li>`;
+        }
+        return `<li><span>${t.name} <span style="color:var(--ink-soft); font-size:11px;">left ${fmtDate(t.last_working_day)}</span></span><span class="tag" style="color:var(--rust);">Resigned</span></li>`;
+      }).join("")
+    : `<li><span>No joiners or resignations logged this period</span></li>`;
+
+  // ---- Summary table -------------------------------------------------
+  document.getElementById("search-box").value = "";
+  document.getElementById("shift-filter").value = "";
+  renderTable();
+}
+
+// =========================================================================
+// Year / Month picker
+// =========================================================================
+let currentFY = null, currentFolder = null;
+
+function currentPeriodQuery(){
+  return `year=${encodeURIComponent(currentFY)}&month=${encodeURIComponent(currentFolder)}`;
+}
+
+function updateDetailsTabLink(){
+  document.getElementById("details-tab-link").href = `employee-details.html?${currentPeriodQuery()}`;
+}
+
+function showNoData(fy, entry){
+  document.getElementById("dashboard-content").style.display = "none";
+  document.getElementById("no-data-section").style.display = "block";
+  document.getElementById("no-data-month").textContent = entry.label;
+  document.getElementById("no-data-folder").textContent = entry.folder;
+  document.title = `Punctuality & Attendance — ${entry.label} (no data yet)`;
+}
+
+function applyEntry(fy, entry){
+  currentFY = fy;
+  currentFolder = entry.folder;
+  updateDetailsTabLink();
+  const url = new URL(window.location);
+  url.searchParams.set("year", fy);
+  url.searchParams.set("month", entry.folder);
+  window.history.replaceState({}, "", url);
+  document.getElementById("no-data-section").style.display = "none";
+  document.getElementById("dashboard-content").style.display = "block";
+  document.getElementById("summary-title").textContent = "Employee summary — " + entry.label;
+  document.title = `Punctuality & Attendance — ${entry.label}`;
+  renderDashboard();
+}
+
+// Explicit pick (user chose this month, or it came from the URL) — no
+// fallback; if it has no data yet, say so plainly.
+function loadExplicit(fy, entry){
+  document.getElementById("year-select").value = fy;
+  populateMonthSelect(fy, entry.folder);
+  currentFY = fy; currentFolder = entry.folder;
+  HRPeriods.loadPeriod(entry.folder, ()=>applyEntry(fy, entry), ()=>showNoData(fy, entry));
+}
+
+// Initial automatic pick — try the most recent month on/before today; if
+// that one has no data yet (e.g. this month hasn't been filled in), keep
+// walking backwards to earlier months until one actually loads.
+function loadWithFallback(candidates, idx){
+  if (idx >= candidates.length){
+    if (candidates.length){
+      const c = candidates[candidates.length - 1];
+      document.getElementById("year-select").value = c.fy;
+      populateMonthSelect(c.fy, c.folder);
+      showNoData(c.fy, c);
+    }
+    return;
+  }
+  const c = candidates[idx];
+  document.getElementById("year-select").value = c.fy;
+  populateMonthSelect(c.fy, c.folder);
+  HRPeriods.loadPeriod(c.folder, ()=>applyEntry(c.fy, c), ()=>loadWithFallback(candidates, idx + 1));
+}
+
+function populateMonthSelect(fy, selectedFolder){
+  const monthSelect = document.getElementById("month-select");
+  const months = HRPeriods.monthsFor(fy);
+  monthSelect.innerHTML = months.map(m=>`<option value="${m.folder}">${m.label}</option>`).join("");
+  if (selectedFolder && months.some(m=>m.folder===selectedFolder)){
+    monthSelect.value = selectedFolder;
+  }
+}
+
+function initPicker(){
+  const yearSelect = document.getElementById("year-select");
+  const monthSelect = document.getElementById("month-select");
+  const fyList = HRPeriods.allFY();
+  yearSelect.innerHTML = fyList.map(fy=>`<option value="${fy}">${fy}</option>`).join("");
+
+  yearSelect.addEventListener("change", ()=>{
+    const fy = yearSelect.value;
+    const entry = HRPeriods.monthsFor(fy)[0];
+    loadExplicit(fy, entry);
+  });
+  monthSelect.addEventListener("change", ()=>{
+    const entry = HRPeriods.findEntry(yearSelect.value, monthSelect.value);
+    if (entry) loadExplicit(yearSelect.value, entry);
+  });
+
+  const params = new URL(window.location).searchParams;
+  const urlYear = params.get("year");
+  const urlFolder = params.get("month");
+
+  if (urlYear && HRPeriods.findEntry(urlYear, urlFolder)){
+    loadExplicit(urlYear, HRPeriods.findEntry(urlYear, urlFolder));
+    return;
+  }
+
+  // No explicit period in the URL: auto-pick the most recent month
+  // on/before today that actually has data, falling back to earlier
+  // months (then, as a last resort, later ones) if needed.
+  const list = HRPeriods.flatList();
+  const today = new Date();
+  const ty = today.getFullYear(), tm = today.getMonth() + 1;
+  const pastFirst = list.filter(p => p.year < ty || (p.year === ty && p.month <= tm))
+    .sort((a,b)=> (b.year - a.year) || (b.month - a.month));
+  const future = list.filter(p => !(p.year < ty || (p.year === ty && p.month <= tm)))
+    .sort((a,b)=> (a.year - b.year) || (a.month - b.month));
+  loadWithFallback(pastFirst.concat(future), 0);
+}
+
+initPicker();
+</script>
+</body>
+</html>

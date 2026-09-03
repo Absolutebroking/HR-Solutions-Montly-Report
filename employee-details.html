@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Employee Details — Attendance Register</title>
+<style>
+  :root{
+    --ink:#1b2430;
+    --ink-soft:#5b6673;
+    --paper:#eef1f0;
+    --card:#ffffff;
+    --line:#dde2e0;
+    --pine:#2f5d50;
+    --pine-deep:#1e3d35;
+    --rust:#a4432a;
+    --amber:#c98a2c;
+    --slate:#556070;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:"IBM Plex Sans","Segoe UI",Arial,sans-serif;
+    line-height:1.5;
+  }
+  .masthead{
+    background:var(--pine-deep);
+    color:#eef1ea;
+    padding:34px clamp(18px,4vw,56px) 26px;
+    border-bottom:6px solid #8a6d3b;
+  }
+  .masthead h1{
+    font-family:Georgia,"Times New Roman",serif;
+    font-weight:700;
+    font-size:clamp(26px,3.2vw,38px);
+    margin:0 0 4px;
+  }
+  .masthead .kicker{ font-size:12.5px; letter-spacing:0.14em; color:#c9d6c9; margin:0; }
+  .period-picker{
+    display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+    margin-bottom:16px;
+    font-size:11.5px;
+  }
+  .period-picker label{
+    color:#c9d6c9;
+    text-transform:uppercase;
+    letter-spacing:0.08em;
+    font-size:10.5px;
+  }
+  .period-picker select{
+    padding:6px 10px;
+    border:1px solid rgba(255,255,255,0.35);
+    background:rgba(255,255,255,0.08);
+    color:#eef1ea;
+    font-size:12.5px;
+    border-radius:2px;
+  }
+  .period-picker select option{ color:#1b2430; }
+  nav.tabs{ margin-top:22px; display:flex; gap:2px; border-top:1px solid rgba(255,255,255,0.15); padding-top:14px; }
+  nav.tabs a{
+    color:#dfe7de; text-decoration:none; font-size:14px; padding:7px 16px;
+    border:1px solid rgba(255,255,255,0.25); border-bottom:none; border-radius:3px 3px 0 0;
+  }
+  nav.tabs a.current{ background:var(--paper); color:var(--ink); border-color:var(--paper); font-weight:600; }
+
+  main{ max-width:1180px; margin:0 auto; padding:32px clamp(18px,4vw,56px) 70px; }
+
+  .panel{ background:var(--card); border:1px solid var(--line); padding:20px 22px 24px; margin-bottom:26px; }
+  h2.section-title{ font-family:Georgia,serif; font-size:20px; margin:0 0 4px; color:var(--pine-deep); }
+  p.section-sub{ margin:0 0 18px; color:var(--ink-soft); font-size:13.5px; max-width:76ch; }
+
+  /* Employee picker chips */
+  #emp-picker{ display:flex; flex-wrap:wrap; gap:8px; margin-bottom:6px; }
+  #emp-picker .chip{
+    padding:6px 13px; border:1px solid var(--line); border-radius:20px; font-size:12.5px;
+    background:#fff; cursor:pointer; color:var(--ink-soft); user-select:none;
+  }
+  #emp-picker .chip:hover{ border-color:var(--pine); color:var(--pine-deep); }
+  #emp-picker .chip.active{ background:var(--pine-deep); border-color:var(--pine-deep); color:#fff; }
+
+  .profile-head{ display:flex; justify-content:space-between; flex-wrap:wrap; gap:18px; align-items:flex-end; margin-bottom:16px; }
+  .profile-head h3{ margin:0; font-size:22px; font-family:Georgia,serif; color:var(--ink); }
+  .profile-head .sub{ font-size:12.5px; color:var(--ink-soft); margin-top:3px; }
+  .stat-strip{ display:flex; gap:26px; flex-wrap:wrap; }
+  .stat-strip div{ text-align:right; }
+  .stat-strip .n{ font-size:22px; font-weight:700; font-family:Georgia,serif; }
+  .stat-strip .l{ font-size:10.5px; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); }
+
+  .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:14px; flex-wrap:wrap; }
+  .toolbar input[type=text], .toolbar input[type=date]{
+    padding:8px 12px; border:1px solid var(--line); background:#fff; font-size:13px; border-radius:2px;
+  }
+  .toolbar select{ padding:8px 10px; border:1px solid var(--line); background:#fff; font-size:13px; border-radius:2px; }
+  .toolbar .count-note{ font-size:12px; color:var(--ink-soft); margin-left:auto; }
+
+  table{ width:100%; border-collapse:collapse; font-size:13px; background:var(--card); }
+  thead th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.05em;
+    color:var(--ink-soft); padding:10px 12px; border-bottom:2px solid var(--ink); white-space:nowrap;
+  }
+  tbody td{ padding:9px 12px; border-bottom:1px solid var(--line); vertical-align:middle; }
+  tbody tr:hover{ background:#f5f7f4; }
+  td.num{ text-align:right; }
+  .pill{ display:inline-block; padding:2px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+  .pill.good{ background:#e2ede4; color:#2f5d40; }
+  .pill.warn{ background:#f5e6d0; color:#8a5a12; }
+  .pill.bad{ background:#f4dfd8; color:#8f3a20; }
+  .pill.muted{ background:#eceeec; color:#6d7670; }
+  .row-sat td{ background:#f8f6ef; }
+  .flag{ color:var(--rust); font-weight:600; font-size:11.5px; }
+  .manual-badge{
+    display:inline-block; margin-left:6px; padding:2px 8px; border-radius:20px;
+    font-size:10.5px; font-weight:600; background:#e2ede4; color:#2f5d40; cursor:help;
+  }
+
+  /* Manual entry helper */
+  .helper-grid{ display:grid; grid-template-columns:repeat(4,1fr) auto; gap:10px; align-items:end; }
+  .helper-grid label{ display:block; font-size:11px; color:var(--ink-soft); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.04em; }
+  .helper-grid input, .helper-grid select{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:2px; font-size:13px;
+  }
+  .helper-grid button{
+    padding:9px 16px; background:var(--pine-deep); color:#fff; border:none; border-radius:2px;
+    font-size:13px; cursor:pointer; font-weight:600;
+  }
+  .helper-grid button:hover{ background:var(--pine); }
+  @media (max-width:900px){ .helper-grid{ grid-template-columns:1fr 1fr; } }
+  .helper-output{
+    margin-top:14px; padding:12px 14px; background:#f5f7f4; border:1px dashed var(--line);
+    font-family:"SFMono-Regular",Consolas,monospace; font-size:12.5px; display:none;
+    justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;
+  }
+  .helper-output button{
+    padding:6px 12px; background:#fff; border:1px solid var(--line); border-radius:2px; cursor:pointer; font-size:12px;
+  }
+  .helper-output button:hover{ border-color:var(--pine); color:var(--pine-deep); }
+  .helper-note{ font-size:12px; color:var(--ink-soft); margin-top:10px; }
+
+  footer{ text-align:center; padding:24px; font-size:11.5px; color:#93a08e; border-top:1px solid var(--line); }
+  .empty-msg{ padding:30px; text-align:center; color:var(--ink-soft); font-size:13.5px; }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="period-picker" id="period-picker">
+    <label for="year-select">Year</label>
+    <select id="year-select"></select>
+    <label for="month-select">Month</label>
+    <select id="month-select"></select>
+  </div>
+  <p class="kicker">TIME &amp; PUNCTUALITY REGISTER</p>
+  <h1>Employee Details</h1>
+  <nav class="tabs">
+    <a href="index.html" id="overview-tab-link">Overview</a>
+    <a href="employee-details.html" class="current">Employee Details &amp; Search</a>
+  </nav>
+</header>
+
+<main>
+
+  <section id="no-data-section" style="display:none;">
+    <div class="panel" style="border-color:#e8c9a6; background:#fdf6ec; text-align:center; padding:40px 22px;">
+      <h3 style="color:#8a5a12; margin-bottom:8px;">No data yet for <span id="no-data-month">this month</span></h3>
+      <p class="section-sub" style="margin:0 auto; text-align:center;">
+        Fill in the CSVs inside <code id="no-data-folder">—</code>, then double-click
+        <code>refresh_dashboard.bat</code> (Windows) or <code>refresh_dashboard.command</code> (Mac) to generate this month's dashboard.
+      </p>
+    </div>
+  </section>
+
+  <div id="details-content">
+
+  <section class="panel">
+    <h2 class="section-title">Find an employee</h2>
+    <p class="section-sub">Pick an employee below, or use the search box in the log table to filter by date, status, or shift once selected.</p>
+    <input type="text" id="emp-search" placeholder="Type a name or ID to filter the list…" style="width:100%; max-width:360px; padding:9px 12px; border:1px solid var(--line); border-radius:2px; font-size:13px; margin-bottom:14px;">
+    <div id="emp-picker"></div>
+  </section>
+
+  <section class="panel" id="profile-panel" style="display:none;">
+    <div class="profile-head">
+      <div>
+        <h3 id="profile-name">—</h3>
+        <div class="sub" id="profile-sub">—</div>
+      </div>
+      <div class="stat-strip" id="profile-stats"></div>
+    </div>
+
+    <div class="toolbar">
+      <input type="text" id="date-search" placeholder="Search date, weekday, or time…">
+      <select id="status-filter">
+        <option value="">All statuses</option>
+        <option value="On Time">On time</option>
+        <option value="Late">Late</option>
+        <option value="Absent">Absent</option>
+      </select>
+      <select id="logout-filter">
+        <option value="">Logout — any</option>
+        <option value="missing">Missing logout only</option>
+      </select>
+      <span class="count-note" id="log-count"></span>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Date</th>
+          <th>Day</th>
+          <th>Shift</th>
+          <th>In</th>
+          <th>Out</th>
+          <th>Status</th>
+          <th>Late by</th>
+        </tr>
+      </thead>
+      <tbody id="log-body"></tbody>
+    </table>
+    <div id="empty-msg" class="empty-msg" style="display:none;">No records match this filter.</div>
+
+    <hr style="border:none; border-top:1px solid var(--line); margin:26px 0 20px;">
+
+    <h3 style="margin:0 0 4px; font-size:15px;">Add a manual entry (e.g. reported over WhatsApp)</h3>
+    <p class="section-sub" style="margin-bottom:14px;">If the app shows someone absent but they messaged their arrival time, fill this in — it builds the exact line to paste into <code>manual_corrections.csv</code>. Save the file and re-run <code>python3 process.py</code> to refresh the dashboard.</p>
+
+    <div class="helper-grid">
+      <div>
+        <label>Date</label>
+        <input type="date" id="mc-date">
+      </div>
+      <div>
+        <label>Time reported</label>
+        <input type="time" id="mc-time" step="1">
+      </div>
+      <div style="grid-column: span 2;">
+        <label>Note (optional)</label>
+        <input type="text" id="mc-note" placeholder="e.g. Reported via WhatsApp — traffic delay">
+      </div>
+      <div>
+        <button id="mc-generate">Generate line</button>
+      </div>
+    </div>
+    <div class="helper-output" id="mc-output">
+      <span id="mc-line"></span>
+      <button id="mc-copy">Copy</button>
+    </div>
+    <p class="helper-note" id="mc-copied" style="display:none; color:var(--pine);">Copied — paste it as a new row in manual_corrections.csv.</p>
+  </section>
+
+  <section class="panel" id="placeholder-panel">
+    <p class="empty-msg">Select an employee above to see their full daily log.</p>
+  </section>
+
+  </div>
+
+</main>
+
+<footer>
+  Generated from biometric/GPS punch export &nbsp;·&nbsp; <a href="index.html" style="color:var(--pine);">← Back to Overview</a>
+</footer>
+
+<script src="periods.js"></script>
+<script src="period-loader.js"></script>
+<script>
+let DATA = null;
+let employees = [];
+let currentEmpId = null;
+
+function fmtDate(iso){
+  const d = new Date(iso + "T00:00:00");
+  return d.toLocaleDateString("en-GB", { day:"2-digit", month:"short", year:"numeric" });
+}
+function fmtTime(hms){
+  if (!hms) return "—";
+  const [h,m] = hms.split(":");
+  const hour = parseInt(h,10);
+  const ampm = hour >= 12 ? "PM" : "AM";
+  const h12 = ((hour + 11) % 12) + 1;
+  return `${h12}:${m} ${ampm}`;
+}
+
+// ---- Employee picker ------------------------------------------------
+function renderPicker(){
+  const q = document.getElementById("emp-search").value.trim().toLowerCase();
+  const filtered = employees.filter(e => !q || e.name.toLowerCase().includes(q) || e.id.toLowerCase().includes(q));
+  document.getElementById("emp-picker").innerHTML = filtered.map(e=>{
+    const badge = e.employment_status === "Resigned" ? ` <span style="color:var(--rust);">●</span>`
+      : e.employment_status === "Joined mid-period" ? ` <span style="color:var(--pine);">●</span>` : "";
+    return `<div class="chip ${e.id===currentEmpId?'active':''}" data-id="${e.id}">${e.name}${badge} <span style="opacity:.6;">(${e.id})</span></div>`;
+  }).join("") || `<p style="color:var(--ink-soft); font-size:13px;">No employees match.</p>`;
+
+  document.querySelectorAll("#emp-picker .chip").forEach(chip=>{
+    chip.addEventListener("click", ()=>{
+      currentEmpId = chip.dataset.id;
+      const url = new URL(window.location);
+      url.searchParams.set("emp", currentEmpId);
+      window.history.replaceState({}, "", url);
+      renderPicker();
+      showProfile(currentEmpId);
+    });
+  });
+}
+document.getElementById("emp-search").addEventListener("input", renderPicker);
+
+// ---- Profile + log table --------------------------------------------
+function showProfile(empId){
+  const emp = DATA.employees[empId];
+  if (!emp) return;
+  document.getElementById("profile-panel").style.display = "block";
+  document.getElementById("placeholder-panel").style.display = "none";
+
+  document.getElementById("profile-name").textContent = emp.name;
+  let subParts = [`ID ${emp.id}`, `${emp.shift} shift (9:30 AM on Saturdays)`, `${emp.working_days} working days in period`];
+  document.getElementById("profile-sub").innerHTML = subParts.join(" · ");
+
+  let statusNote = "";
+  if (emp.employment_status === "Resigned"){
+    statusNote = `<div style="margin-top:6px; font-size:12px; color:var(--rust); font-weight:600;">Resigned — last working day ${fmtDate(emp.last_working_day)}${emp.resigned_note ? " · " + emp.resigned_note : ""}</div>`;
+  } else if (emp.employment_status === "Joined mid-period"){
+    statusNote = `<div style="margin-top:6px; font-size:12px; color:var(--pine); font-weight:600;">New joiner — joined ${fmtDate(emp.joining_date)}${emp.joining_note ? " · " + emp.joining_note : ""}</div>`;
+  }
+  document.getElementById("profile-sub").innerHTML += statusNote;
+
+  document.getElementById("profile-stats").innerHTML = `
+    <div><div class="n" style="color:var(--pine);">${emp.present}</div><div class="l">Present</div></div>
+    <div><div class="n" style="color:var(--rust);">${emp.absent}</div><div class="l">Absent</div></div>
+    <div><div class="n" style="color:var(--amber);">${emp.late}</div><div class="l">Late</div></div>
+    <div><div class="n" style="color:var(--slate);">${emp.no_logout}</div><div class="l">No logout</div></div>
+    <div><div class="n">${emp.attendance_pct}%</div><div class="l">Attendance</div></div>
+    <div><div class="n">${emp.punctuality_pct}%</div><div class="l">Punctuality</div></div>
+    <div><div class="n" style="color:var(--pine);">${emp.manual_entries||0}</div><div class="l">Manual entries</div></div>
+  `;
+
+  renderLog(empId);
+}
+
+function renderLog(empId){
+  const q = document.getElementById("date-search").value.trim().toLowerCase();
+  const statusFilter = document.getElementById("status-filter").value;
+  const logoutFilter = document.getElementById("logout-filter").value;
+
+  let records = DATA.daily_records.filter(r => r.emp_id === empId);
+  records = records.filter(r=>{
+    const hay = [r.date, r.weekday, r.in_time, r.out_time].filter(Boolean).join(" ").toLowerCase();
+    const matchesQ = !q || hay.includes(q);
+    const matchesStatus = !statusFilter || r.status === statusFilter;
+    const matchesLogout = !logoutFilter || (logoutFilter === "missing" && r.no_logout);
+    return matchesQ && matchesStatus && matchesLogout;
+  });
+  records.sort((a,b)=> a.date < b.date ? 1 : -1);
+
+  document.getElementById("log-count").textContent = `${records.length} of ${DATA.daily_records.filter(r=>r.emp_id===empId).length} days`;
+
+  const body = document.getElementById("log-body");
+  const emptyMsg = document.getElementById("empty-msg");
+  if (!records.length){
+    body.innerHTML = "";
+    emptyMsg.style.display = "block";
+    return;
+  }
+  emptyMsg.style.display = "none";
+
+  body.innerHTML = records.map(r=>{
+    const statusPill = r.status === "On Time" ? `<span class="pill good">On time</span>`
+      : r.status === "Late" ? `<span class="pill warn">Late</span>`
+      : `<span class="pill bad">Absent</span>`;
+    const outCell = r.status === "Absent" ? "—"
+      : r.no_logout ? `<span class="flag" title="No exit punch recorded">Not logged out</span>`
+      : fmtTime(r.out_time);
+    const rowClass = r.weekday === "Saturday" ? "row-sat" : "";
+    const manualBadge = r.manual_entry ? `<span class="manual-badge" title="${(r.manual_note||'Manually entered').replace(/"/g,'&quot;')}">✎ WhatsApp</span>` : "";
+    return `
+      <tr class="${rowClass}">
+        <td>${fmtDate(r.date)}</td>
+        <td>${r.weekday}</td>
+        <td>${r.shift_label}</td>
+        <td>${fmtTime(r.in_time)}</td>
+        <td>${outCell}</td>
+        <td>${statusPill}${manualBadge}</td>
+        <td>${r.late_by || "—"}</td>
+      </tr>
+    `;
+  }).join("");
+}
+
+// ---- Manual entry line generator ------------------------------------
+document.getElementById("mc-generate").addEventListener("click", ()=>{
+  if (!currentEmpId){ alert("Pick an employee above first."); return; }
+  const dateVal = document.getElementById("mc-date").value;   // yyyy-mm-dd
+  const timeVal = document.getElementById("mc-time").value;   // HH:MM or HH:MM:SS
+  const note = document.getElementById("mc-note").value.trim();
+  if (!dateVal || !timeVal){ alert("Pick both a date and a time."); return; }
+
+  const [y,m,d] = dateVal.split("-");
+  const ddmmyyyy = `${d}-${m}-${y}`;
+  const hms = timeVal.length === 5 ? timeVal + ":00" : timeVal;
+  const csvNote = note ? note.replace(/,/g, ";") : "Reported via WhatsApp";
+  const line = `${currentEmpId},${ddmmyyyy},${hms},${csvNote}`;
+
+  document.getElementById("mc-line").textContent = line;
+  document.getElementById("mc-output").style.display = "flex";
+  document.getElementById("mc-copied").style.display = "none";
+});
+
+document.getElementById("mc-copy").addEventListener("click", ()=>{
+  const line = document.getElementById("mc-line").textContent;
+  navigator.clipboard.writeText(line).then(()=>{
+    document.getElementById("mc-copied").style.display = "block";
+  }).catch(()=>{
+    prompt("Copy this line manually:", line);
+  });
+});
+
+document.getElementById("date-search").addEventListener("input", ()=>renderLog(currentEmpId));
+document.getElementById("status-filter").addEventListener("change", ()=>renderLog(currentEmpId));
+document.getElementById("logout-filter").addEventListener("change", ()=>renderLog(currentEmpId));
+
+// =========================================================================
+// Year / Month picker (mirrors index.html)
+// =========================================================================
+let currentFY = null, currentFolder = null;
+
+function currentPeriodQuery(){
+  return `year=${encodeURIComponent(currentFY)}&month=${encodeURIComponent(currentFolder)}`;
+}
+
+function updateOverviewTabLink(){
+  document.getElementById("overview-tab-link").href = `index.html?${currentPeriodQuery()}`;
+}
+
+function showNoData(fy, entry){
+  document.getElementById("details-content").style.display = "none";
+  document.getElementById("no-data-section").style.display = "block";
+  document.getElementById("no-data-month").textContent = entry.label;
+  document.getElementById("no-data-folder").textContent = entry.folder;
+  document.title = `Employee Details — ${entry.label} (no data yet)`;
+}
+
+function applyEntry(fy, entry, preserveEmp){
+  currentFY = fy;
+  currentFolder = entry.folder;
+  updateOverviewTabLink();
+  const url = new URL(window.location);
+  url.searchParams.set("year", fy);
+  url.searchParams.set("month", entry.folder);
+  if (!preserveEmp) url.searchParams.delete("emp");
+  window.history.replaceState({}, "", url);
+
+  document.getElementById("no-data-section").style.display = "none";
+  document.getElementById("details-content").style.display = "block";
+  document.title = `Employee Details — ${entry.label}`;
+
+  DATA = window.ATTENDANCE_DATA;
+  employees = Object.values(DATA.employees).sort((a,b)=>a.name.localeCompare(b.name));
+
+  const urlEmp = preserveEmp ? new URL(window.location).searchParams.get("emp") : null;
+  if (urlEmp && DATA.employees[urlEmp]){
+    currentEmpId = urlEmp;
+    renderPicker();
+    showProfile(urlEmp);
+  } else {
+    currentEmpId = null;
+    document.getElementById("profile-panel").style.display = "none";
+    document.getElementById("placeholder-panel").style.display = "block";
+    renderPicker();
+  }
+}
+
+// Explicit pick (user chose this month, or it came from the URL) — no
+// fallback; if it has no data yet, say so plainly.
+function loadExplicit(fy, entry, preserveEmp){
+  document.getElementById("year-select").value = fy;
+  populateMonthSelect(fy, entry.folder);
+  HRPeriods.loadPeriod(entry.folder, ()=>applyEntry(fy, entry, preserveEmp), ()=>showNoData(fy, entry));
+}
+
+// Initial automatic pick — try the most recent month on/before today; if
+// it has no data yet, keep walking backwards to earlier months until one
+// actually loads.
+function loadWithFallback(candidates, idx, preserveEmp){
+  if (idx >= candidates.length){
+    if (candidates.length){
+      const c = candidates[candidates.length - 1];
+      document.getElementById("year-select").value = c.fy;
+      populateMonthSelect(c.fy, c.folder);
+      showNoData(c.fy, c);
+    }
+    return;
+  }
+  const c = candidates[idx];
+  document.getElementById("year-select").value = c.fy;
+  populateMonthSelect(c.fy, c.folder);
+  HRPeriods.loadPeriod(c.folder, ()=>applyEntry(c.fy, c, preserveEmp), ()=>loadWithFallback(candidates, idx + 1, preserveEmp));
+}
+
+function populateMonthSelect(fy, selectedFolder){
+  const monthSelect = document.getElementById("month-select");
+  const months = HRPeriods.monthsFor(fy);
+  monthSelect.innerHTML = months.map(m=>`<option value="${m.folder}">${m.label}</option>`).join("");
+  if (selectedFolder && months.some(m=>m.folder===selectedFolder)){
+    monthSelect.value = selectedFolder;
+  }
+}
+
+function initPicker(){
+  const yearSelect = document.getElementById("year-select");
+  const monthSelect = document.getElementById("month-select");
+  const fyList = HRPeriods.allFY();
+  yearSelect.innerHTML = fyList.map(fy=>`<option value="${fy}">${fy}</option>`).join("");
+
+  yearSelect.addEventListener("change", ()=>{
+    const fy = yearSelect.value;
+    const entry = HRPeriods.monthsFor(fy)[0];
+    loadExplicit(fy, entry, false);
+  });
+  monthSelect.addEventListener("change", ()=>{
+    const entry = HRPeriods.findEntry(yearSelect.value, monthSelect.value);
+    if (entry) loadExplicit(yearSelect.value, entry, false);
+  });
+
+  const params = new URL(window.location).searchParams;
+  const urlYear = params.get("year");
+  const urlFolder = params.get("month");
+
+  if (urlYear && HRPeriods.findEntry(urlYear, urlFolder)){
+    loadExplicit(urlYear, HRPeriods.findEntry(urlYear, urlFolder), true);
+    return;
+  }
+
+  const list = HRPeriods.flatList();
+  const today = new Date();
+  const ty = today.getFullYear(), tm = today.getMonth() + 1;
+  const pastFirst = list.filter(p => p.year < ty || (p.year === ty && p.month <= tm))
+    .sort((a,b)=> (b.year - a.year) || (b.month - a.month));
+  const future = list.filter(p => !(p.year < ty || (p.year === ty && p.month <= tm)))
+    .sort((a,b)=> (a.year - b.year) || (a.month - b.month));
+  loadWithFallback(pastFirst.concat(future), 0, true);
+}
+
+initPicker();
+</script>
+</body>
+</html>
